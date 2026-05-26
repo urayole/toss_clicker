@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/overlay_root"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:background="#D91F1F1F"
+    android:padding="8dp"
+    android:gravity="center_vertical"
+    android:elevation="8dp">
+
+    <!-- Small handle representation -->
+    <View
+        android:id="@+id/vDragHandle"
+        android:layout_width="16dp"
+        android:layout_height="36dp"
+        android:background="#555555"
+        android:layout_marginEnd="8dp" />
+
+    <Button
+        android:id="@+id/btnToggleMacro"
+        android:layout_width="110dp"
+        android:layout_height="36dp"
+        android:text="MACRO OFF"
+        android:backgroundTint="#CF6679"
+        android:textColor="#FFFFFF"
+        android:textSize="11sp"
+        android:textStyle="bold"
+        android:insetTop="0dp"
+        android:insetBottom="0dp"
+        android:padding="0dp" />
+
+    <ImageButton
+        android:id="@+id/btnCloseOverlay"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:layout_marginStart="8dp"
+        android:src="@android:drawable/ic_menu_close_clear_cancel"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:contentDescription="Close" />
+
+</LinearLayout>

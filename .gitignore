@@ -1,0 +1,27 @@
+# Gradle build outputs
+.gradle/
+build/
+app/build/
+
+# Android Studio / IntelliJ IDE files
+.idea/
+*.iml
+.navigation/
+captures/
+.externalNativeBuild/
+.cxx/
+local.properties
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# PC Validation local testing folders & logs
+pc/__pycache__/
+pc/frames/
+pc/templates/
+frames/
+templates/
+*.mp4
+*.avi
+*.log

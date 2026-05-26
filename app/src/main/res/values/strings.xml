@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">TossClicker</string>
+    <string name="accessibility_service_description">TossClicker accessibility service. Required for executing simulated click gestures and using hardware buttons for emergency stop.</string>
+</resources>
