@@ -22,6 +22,10 @@ class AutoClickService : AccessibilityService() {
         Log.w(TAG, "Accessibility service interrupted.")
     }
 
+    override fun onAccessibilityEvent(event: android.view.accessibility.AccessibilityEvent?) {
+        // We don't need to handle accessibility events - only gestures and key events
+    }
+
     override fun onUnbind(intent: Intent?): Boolean {
         instance = null
         return super.onUnbind(intent)

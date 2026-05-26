@@ -34,7 +34,7 @@ class ScreenCaptureService : Service() {
     private var handlerThread: HandlerThread? = null
     private var backgroundHandler: Handler? = null
     
-    private var lastProcessedTime = 0Long
+    private var lastProcessedTime = 0L
     private val frameIntervalMs = 100L // Throttling: 10 FPS to save CPU and reduce heat
 
     override fun onBind(intent: Intent?): IBinder? = null
@@ -108,7 +108,7 @@ class ScreenCaptureService : Service() {
                 if (image != null) {
                     if (isMacroActive) {
                         val now = System.currentTimeMillis()
-                        if (now - lastProcessedTime >= frameIntervalMs) {
+                        if ((now - lastProcessedTime) >= frameIntervalMs) {
                             lastProcessedTime = now
                             processImage(image)
                         } else {
