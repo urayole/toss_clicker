@@ -2,9 +2,9 @@ name: Android Build
 
 on:
   push:
-    branches: [ "main", "master" ]
+    branches: [ "main" ]
   pull_request:
-    branches: [ "main", "master" ]
+    branches: [ "main" ]
   workflow_dispatch:
 
 jobs:
@@ -26,11 +26,15 @@ jobs:
       with:
         gradle-version: '8.5'
 
+    - name: Generate Wrapper
+      run: gradle wrapper --gradle-version 8.5
+
     - name: Build Debug APK
-      run: gradle assembleDebug --no-daemon
+      run: ./gradlew assembleDebug --no-daemon
 
     - name: Upload Debug APK
       uses: actions/upload-artifact@v4
       with:
         name: toss-clicker-debug-apk
         path: app/build/outputs/apk/debug/app-debug.apk
+
