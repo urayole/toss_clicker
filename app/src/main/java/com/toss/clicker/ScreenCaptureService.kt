@@ -51,7 +51,6 @@ class ScreenCaptureService : Service() {
         matcher.setRoi(0.0f, 0.4f, 1.0f, 0.6f) 
         
         createNotificationChannel()
-        startForeground(NOTIFICATION_ID, buildNotification())
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -71,6 +70,16 @@ class ScreenCaptureService : Service() {
 
     private fun startCapture(resultCode: Int, resultData: Intent) {
         try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                startForeground(
+                    NOTIFICATION_ID,
+                    buildNotification(),
+                    android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PROJECTION
+                )
+            } else {
+                startForeground(NOTIFICATION_ID, buildNotification())
+            }
+
             val metrics = resources.displayMetrics
             val screenWidth = metrics.widthPixels
             val screenHeight = metrics.heightPixels
