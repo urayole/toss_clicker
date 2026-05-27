@@ -29,6 +29,10 @@ class OpenCVMatcher(private val context: Context) {
     var lowCannyThreshold = 50.0
     var highCannyThreshold = 150.0
 
+    // Debugging properties
+    @Volatile var lastMatchScore = 0.0
+    @Volatile var lastMatchTemplateName = "None"
+
     // Region of Interest relative values (0.0f - 1.0f)
     // Default: full screen
     private var roiRelativeRect: RectRelative = RectRelative(0.0f, 0.0f, 1.0f, 1.0f)
@@ -155,6 +159,8 @@ class OpenCVMatcher(private val context: Context) {
         }
 
         var matchedPoint: Point? = null
+        var bestScore = 0.0
+        var bestTemplateName = "None"
 
         // Loop through all loaded templates
         for (template in templates) {
@@ -167,18 +173,26 @@ class OpenCVMatcher(private val context: Context) {
             Imgproc.matchTemplate(processedFrame, template.mat, matchResult, Imgproc.TM_CCOEFF_NORMED)
             
             val minMax = Core.minMaxLoc(matchResult)
+            val score = minMax.maxVal
+            if (score > bestScore) {
+                bestScore = score
+                bestTemplateName = template.name
+            }
             
-            if (minMax.maxVal >= threshold) {
+            if (score >= threshold) {
                 // Found match! Calculate absolute center coordinate
                 val matchLoc = minMax.maxLoc
                 val absoluteCenterX = roi.x + matchLoc.x + template.width / 2.0
                 val absoluteCenterY = roi.y + matchLoc.y + template.height / 2.0
                 
                 matchedPoint = Point(absoluteCenterX, absoluteCenterY)
-                Log.i(TAG, "MATCHED template '${template.name}' with score ${minMax.maxVal} at absolute ($absoluteCenterX, $absoluteCenterY)")
+                Log.i(TAG, "MATCHED template '${template.name}' with score $score at absolute ($absoluteCenterX, $absoluteCenterY)")
                 break // Break loop on first match to prioritize speed
             }
         }
+
+        lastMatchScore = bestScore
+        lastMatchTemplateName = bestTemplateName
 
         // Clean up temporary submat header
         croppedMat.release()

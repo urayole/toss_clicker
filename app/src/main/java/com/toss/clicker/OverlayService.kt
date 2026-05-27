@@ -22,17 +22,20 @@ class OverlayService : Service() {
     private lateinit var btnToggleMacro: Button
     private lateinit var btnCloseOverlay: ImageButton
     private lateinit var vDragHandle: View
+    private lateinit var tvDebugInfo: android.widget.TextView
 
     override fun onBind(intent: Intent?): IBinder? = null
 
     override fun onCreate() {
         super.onCreate()
+        instance = this
         windowManager = getSystemService(Context.WINDOW_SERVICE) as WindowManager
         overlayView = LayoutInflater.from(this).inflate(R.layout.layout_overlay, null)
 
         btnToggleMacro = overlayView.findViewById(R.id.btnToggleMacro)
         btnCloseOverlay = overlayView.findViewById(R.id.btnCloseOverlay)
         vDragHandle = overlayView.findViewById(R.id.vDragHandle)
+        tvDebugInfo = overlayView.findViewById(R.id.tvDebugInfo)
 
         setupOverlay()
         setupListeners()
@@ -100,13 +103,31 @@ class OverlayService : Service() {
         btnToggleMacro.backgroundTintList = ColorStateList.valueOf(
             ContextCompat.getColor(this, colorRes)
         )
+        if (!isActive && ::tvDebugInfo.isInitialized) {
+            tvDebugInfo.text = "Macro Stopped"
+        }
+    }
+
+    fun updateDebugInfo(info: String) {
+        if (::tvDebugInfo.isInitialized) {
+            tvDebugInfo.post {
+                tvDebugInfo.text = info
+            }
+        }
     }
 
     override fun onDestroy() {
         super.onDestroy()
+        instance = null
         if (::overlayView.isInitialized) {
             windowManager.removeView(overlayView)
         }
         ScreenCaptureService.isMacroActive = false
+    }
+
+    companion object {
+        @Volatile
+        var instance: OverlayService? = null
+            private set
     }
 }

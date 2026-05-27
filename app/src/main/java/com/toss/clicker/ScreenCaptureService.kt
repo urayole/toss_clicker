@@ -36,6 +36,7 @@ class ScreenCaptureService : Service() {
     
     private var lastProcessedTime = 0L
     private val frameIntervalMs = 100L // Throttling: 10 FPS to save CPU and reduce heat
+    private var frameCount = 0
 
     override fun onBind(intent: Intent?): IBinder? = null
 
@@ -153,8 +154,13 @@ class ScreenCaptureService : Service() {
                 bitmap
             }
 
+            frameCount++
             // Execute template matching
             val matchedPoint = matcher.findMatch(cleanBitmap)
+
+            val scoreText = String.format(java.util.Locale.US, "%.3f", matcher.lastMatchScore)
+            val debugText = "Frames: $frameCount\nScore: $scoreText (${matcher.lastMatchTemplateName})"
+            OverlayService.instance?.updateDebugInfo(debugText)
 
             if (matchedPoint != null) {
                 // Dispatch accessibility touch action

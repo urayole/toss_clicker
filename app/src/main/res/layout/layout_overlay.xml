@@ -3,40 +3,56 @@
     android:id="@+id/overlay_root"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:orientation="horizontal"
+    android:orientation="vertical"
     android:background="#D91F1F1F"
     android:padding="8dp"
-    android:gravity="center_vertical"
     android:elevation="8dp">
 
-    <!-- Small handle representation -->
-    <View
-        android:id="@+id/vDragHandle"
-        android:layout_width="16dp"
-        android:layout_height="36dp"
-        android:background="#555555"
-        android:layout_marginEnd="8dp" />
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
 
-    <Button
-        android:id="@+id/btnToggleMacro"
-        android:layout_width="110dp"
-        android:layout_height="36dp"
-        android:text="MACRO OFF"
-        android:backgroundTint="#CF6679"
-        android:textColor="#FFFFFF"
-        android:textSize="11sp"
-        android:textStyle="bold"
-        android:insetTop="0dp"
-        android:insetBottom="0dp"
-        android:padding="0dp" />
+        <!-- Small handle representation -->
+        <View
+            android:id="@+id/vDragHandle"
+            android:layout_width="16dp"
+            android:layout_height="36dp"
+            android:background="#555555"
+            android:layout_marginEnd="8dp" />
 
-    <ImageButton
-        android:id="@+id/btnCloseOverlay"
-        android:layout_width="36dp"
-        android:layout_height="36dp"
-        android:layout_marginStart="8dp"
-        android:src="@android:drawable/ic_menu_close_clear_cancel"
-        android:background="?attr/selectableItemBackgroundBorderless"
-        android:contentDescription="Close" />
+        <Button
+            android:id="@+id/btnToggleMacro"
+            android:layout_width="110dp"
+            android:layout_height="36dp"
+            android:text="MACRO OFF"
+            android:backgroundTint="#CF6679"
+            android:textColor="#FFFFFF"
+            android:textSize="11sp"
+            android:textStyle="bold"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            android:padding="0dp" />
+
+        <ImageButton
+            android:id="@+id/btnCloseOverlay"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:layout_marginStart="8dp"
+            android:src="@android:drawable/ic_menu_close_clear_cancel"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="Close" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/tvDebugInfo"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="#00FF00"
+        android:textSize="10sp"
+        android:text="Status: Ready"
+        android:layout_marginTop="4dp"
+        android:fontFamily="monospace" />
 
 </LinearLayout>
