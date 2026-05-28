@@ -20,6 +20,8 @@ import android.os.Handler
 import android.os.HandlerThread
 import android.os.IBinder
 import android.util.Log
+import android.util.DisplayMetrics
+import android.view.WindowManager
 import androidx.core.app.NotificationCompat
 
 class ScreenCaptureService : Service() {
@@ -87,10 +89,23 @@ class ScreenCaptureService : Service() {
                 startForeground(NOTIFICATION_ID, buildNotification())
             }
 
-            val metrics = resources.displayMetrics
-            val screenWidth = metrics.widthPixels
-            val screenHeight = metrics.heightPixels
-            val screenDensity = metrics.densityDpi
+            val windowManager = getSystemService(Context.WINDOW_SERVICE) as WindowManager
+            val screenWidth: Int
+            val screenHeight: Int
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                val windowMetrics = windowManager.currentWindowMetrics
+                val bounds = windowMetrics.bounds
+                screenWidth = bounds.width()
+                screenHeight = bounds.height()
+            } else {
+                val display = windowManager.defaultDisplay
+                val realMetrics = DisplayMetrics()
+                display.getRealMetrics(realMetrics)
+                screenWidth = realMetrics.widthPixels
+                screenHeight = realMetrics.heightPixels
+            }
+            val screenDensity = resources.displayMetrics.densityDpi
+            Log.d(TAG, "Screen resolution used for MediaProjection: ${screenWidth}x${screenHeight}, density: $screenDensity")
 
             mediaProjection = mediaProjectionManager.getMediaProjection(resultCode, resultData)
             if (mediaProjection == null) {
@@ -148,9 +163,9 @@ class ScreenCaptureService : Service() {
 
     private fun processImage(image: Image) {
         try {
-            Log.d(TAG, "processImage: Starting frame processing...")
             val width = image.width
             val height = image.height
+            Log.d(TAG, "processImage: Starting frame processing... size: ${width}x${height}")
             val planes = image.planes
             val buffer = planes[0].buffer
             val pixelStride = planes[0].pixelStride
