@@ -198,17 +198,20 @@ class ScreenCaptureService : Service() {
             OverlayService.instance?.updateDebugInfo(debugText)
 
             if (matchedPoint != null) {
-                val currentTime = System.currentTimeMillis()
-                if (currentTime - lastClickTime >= 1000) {
-                    lastClickTime = currentTime
-                    // Dispatch accessibility touch action
-                    AutoClickService.instance?.clickAt(
-                        matchedPoint.x.toFloat(),
-                        matchedPoint.y.toFloat()
-                    )
-                } else {
-                    Log.d(TAG, "Click skipped due to cooldown protection")
-                }
+                // Calculate Top-Left bounding box coordinate from match center
+                val rectWidth = matcher.lastMatchTemplateWidth
+                val rectHeight = matcher.lastMatchTemplateHeight
+                val topLeftX = matchedPoint.x - rectWidth / 2.0
+                val topLeftY = matchedPoint.y - rectHeight / 2.0
+
+                OverlayService.instance?.showTargetGuide(
+                    topLeftX.toInt(),
+                    topLeftY.toInt(),
+                    rectWidth,
+                    rectHeight
+                )
+            } else {
+                OverlayService.instance?.hideTargetGuide()
             }
 
             // Cleanup Bitmap memory

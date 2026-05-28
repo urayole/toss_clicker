@@ -158,9 +158,93 @@ class OverlayService : Service() {
         }
     }
 
+    private var targetGuideView: View? = null
+    private var targetGuideParams: WindowManager.LayoutParams? = null
+    private var isTargetGuideShowing = false
+
+    fun showTargetGuide(x: Int, y: Int, w: Int, h: Int) {
+        if (!::overlayView.isInitialized) return
+        overlayView.post {
+            try {
+                if (targetGuideView == null) {
+                    targetGuideView = LayoutInflater.from(this).inflate(R.layout.layout_target_guide, null)
+                    targetGuideParams = WindowManager.LayoutParams(
+                        w,
+                        h,
+                        WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
+                        WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
+                                WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE or
+                                WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN or
+                                WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
+                        PixelFormat.TRANSLUCENT
+                    ).apply {
+                        gravity = Gravity.TOP or Gravity.START
+                        this.x = x
+                        this.y = y
+                    }
+                    windowManager.addView(targetGuideView, targetGuideParams)
+                    isTargetGuideShowing = true
+                    Log.d("OverlayService", "Target guide overlay added at ($x, $y) size: ${w}x${h}")
+
+                    // Start breathing glow pulsing animation
+                    val vRing = targetGuideView?.findViewById<View>(R.id.vTargetRing)
+                    vRing?.let { view ->
+                        val animator = android.animation.ObjectAnimator.ofFloat(view, "alpha", 1.0f, 0.2f).apply {
+                            duration = 300
+                            repeatMode = android.animation.ValueAnimator.REVERSE
+                            repeatCount = android.animation.ValueAnimator.INFINITE
+                            interpolator = android.view.animation.AccelerateDecelerateInterpolator()
+                        }
+                        animator.start()
+                        view.tag = animator // Store animator to stop it on release
+                    }
+                } else {
+                    // Update layout parameters smoothly on movement
+                    targetGuideParams?.let { params ->
+                        if (params.x != x || params.y != y || params.width != w || params.height != h) {
+                            params.x = x
+                            params.y = y
+                            params.width = w
+                            params.height = h
+                            windowManager.updateViewLayout(targetGuideView, params)
+                            Log.d("OverlayService", "Target guide moved to ($x, $y)")
+                        }
+                    }
+                }
+            } catch (e: Exception) {
+                Log.e("OverlayService", "Error showing target guide: ${e.message}", e)
+            }
+        }
+    }
+
+    fun hideTargetGuide() {
+        if (!::overlayView.isInitialized) return
+        overlayView.post {
+            try {
+                targetGuideView?.let { view ->
+                    val vRing = view.findViewById<View>(R.id.vTargetRing)
+                    val animator = vRing?.tag as? android.animation.ObjectAnimator
+                    animator?.cancel()
+                    windowManager.removeView(view)
+                    targetGuideView = null
+                    targetGuideParams = null
+                    isTargetGuideShowing = false
+                    Log.d("OverlayService", "Target guide overlay removed.")
+                }
+            } catch (e: Exception) {
+                Log.e("OverlayService", "Error hiding target guide: ${e.message}", e)
+            }
+        }
+    }
+
     override fun onDestroy() {
         super.onDestroy()
         instance = null
+        targetGuideView?.let {
+            try {
+                windowManager.removeView(it)
+            } catch (e: Exception) {}
+        }
         if (::overlayView.isInitialized) {
             windowManager.removeView(overlayView)
         }

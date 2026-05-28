@@ -32,6 +32,8 @@ class OpenCVMatcher(private val context: Context) {
     // Debugging properties
     @Volatile var lastMatchScore = 0.0
     @Volatile var lastMatchTemplateName = "None"
+    @Volatile var lastMatchTemplateWidth = 0
+    @Volatile var lastMatchTemplateHeight = 0
 
     // Region of Interest relative values (0.0f - 1.0f)
     // Default: full screen
@@ -185,10 +187,17 @@ class OpenCVMatcher(private val context: Context) {
                 val absoluteCenterX = roi.x + matchLoc.x + template.width / 2.0
                 val absoluteCenterY = roi.y + matchLoc.y + template.height / 2.0
                 
+                lastMatchTemplateWidth = template.width
+                lastMatchTemplateHeight = template.height
                 matchedPoint = Point(absoluteCenterX, absoluteCenterY)
                 Log.i(TAG, "MATCHED template '${template.name}' with score $score at absolute ($absoluteCenterX, $absoluteCenterY)")
                 break // Break loop on first match to prioritize speed
             }
+        }
+        
+        if (matchedPoint == null) {
+            lastMatchTemplateWidth = 0
+            lastMatchTemplateHeight = 0
         }
 
         lastMatchScore = bestScore

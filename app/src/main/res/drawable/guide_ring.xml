@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <!-- Transparent inside so target text is visible -->
+    <solid android:color="@android:color/transparent" />
+    
+    <!-- Thick glowing neon red/pink border -->
+    <stroke
+        android:width="6dp"
+        android:color="#FF007F" />
+        
+    <!-- Rounded corners to fit the button shape nicely -->
+    <corners android:radius="12dp" />
+</shape>
