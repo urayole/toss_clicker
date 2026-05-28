@@ -38,6 +38,13 @@ class ScreenCaptureService : Service() {
     private val frameIntervalMs = 100L // Throttling: 10 FPS to save CPU and reduce heat
     private var frameCount = 0
 
+    private val mediaProjectionCallback = object : MediaProjection.Callback() {
+        override fun onStop() {
+            Log.i(TAG, "MediaProjection stopped.")
+            stopSelf()
+        }
+    }
+
     override fun onBind(intent: Intent?): IBinder? = null
 
     override fun onCreate() {
@@ -91,6 +98,7 @@ class ScreenCaptureService : Service() {
                 stopSelf()
                 return
             }
+            mediaProjection?.registerCallback(mediaProjectionCallback, null)
 
             imageReader = ImageReader.newInstance(
                 screenWidth,
@@ -225,6 +233,11 @@ class ScreenCaptureService : Service() {
         imageReader?.close()
         imageReader = null
         
+        try {
+            mediaProjection?.unregisterCallback(mediaProjectionCallback)
+        } catch (e: Exception) {
+            // Ignore if already unregistered
+        }
         mediaProjection?.stop()
         mediaProjection = null
         
