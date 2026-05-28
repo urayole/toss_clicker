@@ -39,6 +39,7 @@ class ScreenCaptureService : Service() {
     private var lastProcessedTime = 0L
     private val frameIntervalMs = 100L // Throttling: 10 FPS to save CPU and reduce heat
     private var frameCount = 0
+    private var lastClickTime = 0L
 
     private val mediaProjectionCallback = object : MediaProjection.Callback() {
         override fun onStop() {
@@ -197,11 +198,17 @@ class ScreenCaptureService : Service() {
             OverlayService.instance?.updateDebugInfo(debugText)
 
             if (matchedPoint != null) {
-                // Dispatch accessibility touch action
-                AutoClickService.instance?.clickAt(
-                    matchedPoint.x.toFloat(),
-                    matchedPoint.y.toFloat()
-                )
+                val currentTime = System.currentTimeMillis()
+                if (currentTime - lastClickTime >= 1000) {
+                    lastClickTime = currentTime
+                    // Dispatch accessibility touch action
+                    AutoClickService.instance?.clickAt(
+                        matchedPoint.x.toFloat(),
+                        matchedPoint.y.toFloat()
+                    )
+                } else {
+                    Log.d(TAG, "Click skipped due to cooldown protection")
+                }
             }
 
             // Cleanup Bitmap memory

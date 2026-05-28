@@ -60,24 +60,40 @@ class AutoClickService : AccessibilityService() {
     fun clickAt(x: Float, y: Float) {
         val path = Path().apply {
             moveTo(x, y)
+            lineTo(x, y)
         }
-        // Build simulated gesture (tap duration: 50 milliseconds)
-        val stroke = GestureDescription.StrokeDescription(path, 0, 50)
+        // Build simulated gesture (tap duration: 100 milliseconds for reliability)
+        val stroke = GestureDescription.StrokeDescription(path, 0, 100)
         val gestureBuilder = GestureDescription.Builder().apply {
             addStroke(stroke)
         }
 
-        dispatchGesture(gestureBuilder.build(), object : GestureResultCallback() {
-            override fun onCompleted(gestureDescription: GestureDescription?) {
-                super.onCompleted(gestureDescription)
-                Log.d(TAG, "Simulated click succeeded at ($x, $y)")
-            }
+        // 1. Minimize overlay window to bypass Android 12+ Untrusted Touch check
+        OverlayService.instance?.minimizeOverlay()
 
-            override fun onCancelled(gestureDescription: GestureDescription?) {
-                super.onCancelled(gestureDescription)
-                Log.e(TAG, "Simulated click failed/cancelled")
+        // 2. Wait 150ms for the layout update to apply before injecting touch event
+        android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
+            try {
+                dispatchGesture(gestureBuilder.build(), object : GestureResultCallback() {
+                    override fun onCompleted(gestureDescription: GestureDescription?) {
+                        super.onCompleted(gestureDescription)
+                        Log.d(TAG, "Simulated click succeeded at ($x, $y)")
+                        // 3. Restore overlay to original size and interactive state
+                        OverlayService.instance?.restoreOverlay()
+                    }
+
+                    override fun onCancelled(gestureDescription: GestureDescription?) {
+                        super.onCancelled(gestureDescription)
+                        Log.e(TAG, "Simulated click failed/cancelled")
+                        // 3. Restore overlay even if gesture is cancelled
+                        OverlayService.instance?.restoreOverlay()
+                    }
+                }, null)
+            } catch (e: Exception) {
+                Log.e(TAG, "Error dispatching gesture: ${e.message}", e)
+                OverlayService.instance?.restoreOverlay()
             }
-        }, null)
+        }, 150)
     }
 
     private fun triggerEmergencyStop() {

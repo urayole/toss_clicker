@@ -1,5 +1,6 @@
 package com.toss.clicker
 
+import android.util.Log
 import android.app.Service
 import android.content.Context
 import android.content.Intent
@@ -112,6 +113,47 @@ class OverlayService : Service() {
         if (::tvDebugInfo.isInitialized) {
             tvDebugInfo.post {
                 tvDebugInfo.text = info
+            }
+        }
+    }
+
+    private var originalWidth = WindowManager.LayoutParams.WRAP_CONTENT
+    private var originalHeight = WindowManager.LayoutParams.WRAP_CONTENT
+    private var originalFlags = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
+
+    fun minimizeOverlay() {
+        if (!::overlayView.isInitialized) return
+        overlayView.post {
+            try {
+                val params = overlayView.layoutParams as WindowManager.LayoutParams
+                originalWidth = params.width
+                originalHeight = params.height
+                originalFlags = params.flags
+
+                // Change to 1x1 invisible dot and add FLAG_NOT_TOUCHABLE to bypass untrusted touch check
+                params.width = 1
+                params.height = 1
+                params.flags = params.flags or WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
+                windowManager.updateViewLayout(overlayView, params)
+                Log.d("OverlayService", "Overlay minimized to bypass security touch filter.")
+            } catch (e: Exception) {
+                Log.e("OverlayService", "Error minimizing overlay: ${e.message}")
+            }
+        }
+    }
+
+    fun restoreOverlay() {
+        if (!::overlayView.isInitialized) return
+        overlayView.post {
+            try {
+                val params = overlayView.layoutParams as WindowManager.LayoutParams
+                params.width = originalWidth
+                params.height = originalHeight
+                params.flags = originalFlags
+                windowManager.updateViewLayout(overlayView, params)
+                Log.d("OverlayService", "Overlay layout restored to original state.")
+            } catch (e: Exception) {
+                Log.e("OverlayService", "Error restoring overlay: ${e.message}")
             }
         }
     }
