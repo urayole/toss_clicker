@@ -125,6 +125,7 @@ class ScreenCaptureService : Service() {
                 val image = reader.acquireLatestImage()
                 if (image != null) {
                     if (isMacroActive) {
+                        Log.d(TAG, "onImageAvailable: Frame received, isMacroActive=true")
                         val now = System.currentTimeMillis()
                         if ((now - lastProcessedTime) >= frameIntervalMs) {
                             lastProcessedTime = now
@@ -147,6 +148,7 @@ class ScreenCaptureService : Service() {
 
     private fun processImage(image: Image) {
         try {
+            Log.d(TAG, "processImage: Starting frame processing...")
             val width = image.width
             val height = image.height
             val planes = image.planes

@@ -193,6 +193,7 @@ class OpenCVMatcher(private val context: Context) {
 
         lastMatchScore = bestScore
         lastMatchTemplateName = bestTemplateName
+        Log.d(TAG, "findMatch - bestScore: $bestScore for template: $bestTemplateName (threshold: $threshold)")
 
         // Clean up temporary submat header
         croppedMat.release()
