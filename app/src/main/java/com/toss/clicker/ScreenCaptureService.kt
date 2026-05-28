@@ -53,9 +53,9 @@ class ScreenCaptureService : Service() {
         mediaProjectionManager = getSystemService(Context.MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
         matcher = OpenCVMatcher(this)
         
-        // Define ROI to focus on screen area where templates are expected (e.g. bottom-middle area)
+        // Define ROI to focus on screen area where templates are expected (e.g. full screen)
         // Adjust relative values (x, y, w, h) according to target application
-        matcher.setRoi(0.0f, 0.4f, 1.0f, 0.6f) 
+        matcher.setRoi(0.0f, 0.0f, 1.0f, 1.0f) 
         
         createNotificationChannel()
     }
